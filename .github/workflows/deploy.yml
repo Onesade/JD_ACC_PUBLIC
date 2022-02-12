@@ -2,7 +2,7 @@ name: Deploy(部署到云) #部署脚本每次执行就是部署最新代码上�
 on:
   workflow_dispatch:
   schedule:
-    - cron: '10 1,8,15 * * *'
+    - cron: '10 2,14 * * *'
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -37,7 +37,7 @@ jobs:
       - name: install dependency
         working-directory: ./percollect
         run: |
-          npm i
+          npm uninstall dotenv
           npm i -g serverless
       - name: set serverless.yml and push env
         working-directory: ./percollect
@@ -66,7 +66,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && !github.event.repository.private}}
         run: |
           echo 'Not a private repo!!! Please change to private!'
-          echo 'require("./sendNotify").sendNotify("仓库非私有!","配置文件部署方式仓库必须为私有!(如已经私有请忽略并反馈Issues,感谢!)")' > notify.js
+          echo 'require("./sendNotify").sendNotify("仓库非私有!","配置文件部署方式仓库必须为私有!")' > notify.js
           node notify.js
           rm -rf notify.js
 #       - name: version check
@@ -76,4 +76,4 @@ jobs:
       - name: deploy
         working-directory: ./percollect
         run: |
-            (! (sls deploy | grep -E '错误信息|Error')) && echo '部署成功' || (echo '部署失败,可以在自己私库页面寻找常见问题解决办法(FAQ)'; echo 'require("./sendNotify").sendNotify("云函数部署异常！请重试","进入私库页面点击Action,进入对应action查看deploy步骤日志\n自己私库下方readme有常见问题解决方法",{ url: process.env.GITHUB_SERVER_URL + "/" + process.env.GITHUB_REPOSITORY + "/actions/runs/" + process.env.GITHUB_RUN_ID + "?check_suite_focus=true" })' > notify.js; node notify.js; exit 1) 
+            (! (sls deploy | grep -E '错误信息|Error')) && echo '部署成功' || (echo '部署失败,可在群内置顶查看之前的readme帮助寻求解决办法'; echo 'require("./sendNotify").sendNotify("云函数部署异常！请重试","进入私库页面点击Action,进入对应action查看deploy步骤日志\n自己私库下方readme有常见问题解决方法",{ url: process.env.GITHUB_SERVER_URL + "/" + process.env.GITHUB_REPOSITORY + "/actions/runs/" + process.env.GITHUB_RUN_ID + "?check_suite_focus=true" })' > notify.js; node notify.js; exit 1) 
